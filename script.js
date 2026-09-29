@@ -1,10 +1,47 @@
 console.log("VÉRANO — Tailoring for Presence");
 
 /* =================================
+   MOBILE NAV — hamburger toggle
+================================= */
+
+(function () {
+    const toggle = document.getElementById("navToggle");
+    const links = document.getElementById("navLinks");
+
+    if (!toggle || !links) return;
+
+    function closeMenu() {
+        links.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Open menu");
+    }
+
+    toggle.addEventListener("click", () => {
+        const isOpen = links.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(isOpen));
+        toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+    });
+
+    // Close the drawer once a destination is picked, or on Escape.
+    links.querySelectorAll("a").forEach((a) =>
+        a.addEventListener("click", closeMenu)
+    );
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+    });
+})();
+
+/* =================================
    ASSEMBLY — scroll-scrubbed suit build
    Frame sequence: 79 alpha-transparent WebP
    frames extracted from the v2 hailuo capture
    (suit-frames/suit-001.webp ... suit-079.webp)
+
+   Frames are only fetched once the visitor is
+   about to reach the section (IntersectionObserver
+   below) so mobile visitors who never scroll that
+   far don't pay for ~3MB of animation frames.
 ================================= */
 
 (function () {
@@ -25,21 +62,57 @@ console.log("VÉRANO — Tailoring for Presence");
     const FRAME_PATH = (i) =>
         `assets/products/suit-frames/suit-${String(i).padStart(3, "0")}.webp`;
 
+    const prefersReducedMotion =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     const frames = [];
     let framesLoaded = 0;
-    let ready = false;
+    let started = false;
 
-    // Preload every frame. Draw the first one as soon as it lands
-    // so there's no blank canvas while the rest stream in.
-    for (let i = 1; i <= FRAME_COUNT; i++) {
+    function loadFrame(i) {
         const img = new Image();
         img.src = FRAME_PATH(i);
         img.onload = () => {
             framesLoaded++;
             if (i === 1) drawFrame(1);
-            if (framesLoaded === FRAME_COUNT) ready = true;
         };
-        frames.push(img);
+        frames[i - 1] = img;
+    }
+
+    function startLoading() {
+        if (started) return;
+        started = true;
+
+        if (prefersReducedMotion) {
+            // Skip the animation entirely: show the finished suit and
+            // the closing line, no scroll-linked work, no frame fetching.
+            loadFrame(FRAME_COUNT);
+            if (finalLabel) finalLabel.classList.add("is-visible");
+            return;
+        }
+
+        for (let i = 1; i <= FRAME_COUNT; i++) loadFrame(i);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
+        onScroll();
+    }
+
+    // Start fetching frames a little before the section is reached,
+    // not on initial page load.
+    if ("IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+            (entries) => {
+                if (entries.some((e) => e.isIntersecting)) {
+                    startLoading();
+                    io.disconnect();
+                }
+            },
+            { rootMargin: "150% 0px 150% 0px" }
+        );
+        io.observe(section);
+    } else {
+        startLoading();
     }
 
     function drawFrame(index) {
@@ -63,8 +136,8 @@ console.log("VÉRANO — Tailoring for Presence");
         for (let d = 1; d < FRAME_COUNT; d++) {
             const down = target - d;
             const up = target + d;
-            if (down >= 1 && frames[down - 1].complete) return down;
-            if (up <= FRAME_COUNT && frames[up - 1].complete) return up;
+            if (down >= 1 && frames[down - 1] && frames[down - 1].complete) return down;
+            if (up <= FRAME_COUNT && frames[up - 1] && frames[up - 1].complete) return up;
         }
         return 1;
     }
@@ -111,8 +184,4 @@ console.log("VÉRANO — Tailoring for Presence");
         el.classList.toggle("is-visible", condition);
     }
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-
-    onScroll();
 })();

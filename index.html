@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080808">
 
     <title>VÉRANO — Tailoring for Presence</title>
 
@@ -26,7 +27,7 @@
             VÉRANO<span>.</span>
         </a>
 
-        <nav class="nav-links">
+        <nav class="nav-links" id="navLinks">
             <a href="#silhouette">Silhouette</a>
             <a href="#craft">Craft</a>
             <a href="#collection">Collection</a>
@@ -35,6 +36,17 @@
         <a href="#appointment" class="nav-button">
             Appointment <span>↗</span>
         </a>
+
+        <button
+            class="nav-toggle"
+            id="navToggle"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="navLinks"
+        >
+            <span></span>
+            <span></span>
+        </button>
 
     </header>
 
@@ -80,7 +92,7 @@
 
                 <img
                     class="suit-teaser"
-                    src="assets/products/hero-suit.png"
+                    src="assets/products/hero-suit.webp"
                     alt="VÉRANO — man in charcoal three-piece suit"
                 >
 
@@ -232,7 +244,7 @@
             <div class="collection-grid">
 
                 <article class="product-card noir">
-                    <img src="assets/products/collection/noir.jpg" alt="VÉRANO NOIR — black three-piece suit">
+                    <img src="assets/products/collection/noir.webp" alt="VÉRANO NOIR — black three-piece suit" loading="lazy">
                     <span>01</span>
 
                     <div>
@@ -243,7 +255,7 @@
 
 
                 <article class="product-card graphite">
-                    <img src="assets/products/collection/graphite.jpg" alt="VÉRANO GRAPHITE — charcoal three-piece suit">
+                    <img src="assets/products/collection/graphite.webp" alt="VÉRANO GRAPHITE — charcoal three-piece suit" loading="lazy">
                     <span>02</span>
 
                     <div>
@@ -254,7 +266,7 @@
 
 
                 <article class="product-card ivory">
-                    <img src="assets/products/collection/ivory.jpg" alt="VÉRANO IVORY — cream double-breasted suit">
+                    <img src="assets/products/collection/ivory.webp" alt="VÉRANO IVORY — cream double-breasted suit" loading="lazy">
                     <span>03</span>
 
                     <div>
